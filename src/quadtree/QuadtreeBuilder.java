@@ -1,9 +1,6 @@
 package quadtree;
-import java.util.*; 
 import image.ImageUtils;
-import java.io.*;
 import compressor.Calculate;
-import quadtree.QuadtreeNode;
 
 public class QuadtreeBuilder {
     public static boolean shouldSplit(int[][][] block, double threshold, int minSize, int method, int[][][] originalBlock) {

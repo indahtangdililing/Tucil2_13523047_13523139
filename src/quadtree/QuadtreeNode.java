@@ -1,8 +1,4 @@
 package quadtree;
-import java.util.*;
-import java.io.*;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 
 
 public class QuadtreeNode {
