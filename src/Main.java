@@ -6,6 +6,8 @@ import image.ImageUtils;
 import quadtree.QuadtreeBuilder;
 import quadtree.QuadtreeNode;
 
+
+
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -64,7 +66,7 @@ public class Main {
             } catch (IOException e) {
                 System.err.println("Gagal membaca gambar menggunakan program Java sederhana: " + e.getMessage());
             }
-   
+            
             int[][][] pixelData = ImageUtils.loadImage(inputImagePath);
             int height = pixelData.length;
             int width = pixelData[0].length;
@@ -74,12 +76,13 @@ public class Main {
 
             // --- Tambahkan pengecekan ukuran array piksel ---
             if (pixelData.length > 0 && pixelData[0].length > 0) {
-                QuadtreeNode root = QuadtreeBuilder.buildQuadtree(pixelData, 0, 0, Math.max(width, height), threshold, minSize, method, pixelData);
+                int padSize = ImageUtils.getPowerOfTwoSize(Math.max(width, height));
+                int[][][] paddedImage = ImageUtils.padImage(pixelData, padSize, padSize);
+                QuadtreeNode root = QuadtreeBuilder.buildQuadtree(paddedImage, 0, 0, padSize, threshold, minSize, method, paddedImage);
                 int[][][] compressedPixelData = new int[height][width][3];
-                compressedPixelData = QuadtreeBuilder.reconstructImage(root, compressedPixelData);
+                compressedPixelData = QuadtreeBuilder.reconstructImage(root, compressedPixelData, width, height);
 
                 ImageUtils.saveImage(compressedPixelData, outputImagePath, "jpg"); 
-
                 File originalFile = new File(inputImagePath);
                 File compressedFile = new File(outputImagePath);
                 int originalSize = (int) originalFile.length();
@@ -107,6 +110,7 @@ public class Main {
             } else {
                 System.err.println("Gambar kosong atau tidak valid.");
             }
+
 
         } catch (IOException e) {
             System.err.println("Terjadi kesalahan: " + e.getMessage());

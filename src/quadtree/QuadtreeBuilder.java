@@ -43,22 +43,24 @@ public class QuadtreeBuilder {
         return node;
     }
 
-    public static int[][][] reconstructImage(QuadtreeNode node, int[][][] image) {
-        int height = image.length;
-        int width = image[0].length;
-
-        for (int i = 0; i < node.size; i++) {
-            for (int j = 0; j < node.size; j++) {
-                if (node.y + i < height && node.x + j < width) {
-                    image[node.y + i][node.x + j] = node.avgColor;
+    public static int[][][] reconstructImage(QuadtreeNode node, int[][][] image, int originalWidth, int originalHeight) {
+        // Kode yang ada
+        
+        // Pastikan hanya menyalin ke area valid dari gambar asli
+        if (node.children[0] == null) {
+            for (int i = 0; i < node.size; i++) {
+                for (int j = 0; j < node.size; j++) {
+                    if (node.y + i < originalHeight && node.x + j < originalWidth) {
+                        image[node.y + i][node.x + j] = node.avgColor;
+                    }
                 }
             }
-        }
-        if (node.children[0] != null) {
-            reconstructImage(node.children[0], image);
-            reconstructImage(node.children[1], image);
-            reconstructImage(node.children[2], image);
-            reconstructImage(node.children[3], image);
+        } else {
+            for (QuadtreeNode child : node.children) {
+                if (child != null) {
+                    reconstructImage(child, image, originalWidth, originalHeight);
+                }
+            }
         }
         return image;
     }

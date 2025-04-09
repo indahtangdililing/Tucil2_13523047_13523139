@@ -66,4 +66,36 @@ public class ImageUtils {
     public static double calculateCompressionPercentage(int originalSize, int compressedSize) {
         return (1.0 - ((double) compressedSize / originalSize)) * 100.0;
     }
+    public static int getPowerOfTwoSize(int size) {
+        int power = 1;
+        while (power < size) {
+            power *= 2;
+        }
+        return power;
+    }
+    
+    public static int[][][] padImage(int[][][] image, int targetWidth, int targetHeight) {
+        int height = image.length;
+        int width = image[0].length;
+        int[][][] paddedImage = new int[targetHeight][targetWidth][3];
+        
+        // Copy original image data
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                paddedImage[y][x] = image[y][x];
+            }
+        }
+        
+        // Fill the padding areas with the nearest pixel value
+        for (int y = 0; y < targetHeight; y++) {
+            for (int x = 0; x < targetWidth; x++) {
+                if (y >= height || x >= width) {
+                    int sourceY = Math.min(y, height - 1);
+                    int sourceX = Math.min(x, width - 1);
+                    paddedImage[y][x] = image[sourceY][sourceX];
+                }
+            }
+        }
+        return paddedImage;
+    }
 }
