@@ -18,8 +18,6 @@ public class QuadtreeBuilder {
                 return Calculate.calculateMaxPixelDifference(block)[3] > threshold;
             case 4:
                 return Calculate.calculateEntropy(block)[3] > threshold;
-            // case 5: 
-            //     return Calculate.calculateSSIM(block, originalBlock)[3] < threshold;
             default:
                 return false;
         }

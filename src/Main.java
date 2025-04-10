@@ -33,9 +33,6 @@ public class Main {
         System.out.print("Masukkan ukuran blok minimum: ");
         int minSize = scanner.nextInt();
 
-        // System.out.print("Masukkan target persentase kompresi (0 untuk menonaktifkan): ");
-        // double targetCompression = scanner.nextDouble();
-
         scanner.nextLine(); 
 
         System.out.print("Masukkan alamat absolut gambar hasil kompresi (termasuk nama file dan ekstensi): ");
