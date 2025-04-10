@@ -18,8 +18,8 @@ public class QuadtreeBuilder {
                 return Calculate.calculateMaxPixelDifference(block)[3] > threshold;
             case 4:
                 return Calculate.calculateEntropy(block)[3] > threshold;
-            case 5: //SSIM
-                return Calculate.calculateSSIM(block, originalBlock)[3] < threshold; //SSIM: lower is worse
+            case 5: 
+                return Calculate.calculateSSIM(block, originalBlock)[3] < threshold;
             default:
                 return false;
         }
@@ -27,7 +27,7 @@ public class QuadtreeBuilder {
 
     public static QuadtreeNode buildQuadtree(int[][][] image, int x, int y, int width, int height, double threshold, int minSize, int method, int[][][] originalImage) {
         int[][][] block = ImageUtils.extractBlock(image, x, y, width, height);
-        int[][][] originalBlock = ImageUtils.extractBlock(originalImage, x, y, width, height); //For SSIM
+        int[][][] originalBlock = ImageUtils.extractBlock(originalImage, x, y, width, height); 
         int[] avgColor = Calculate.calculateAverageColor(block);
 
         if (!shouldSplit(block, threshold, minSize, method, originalBlock)) {
@@ -46,27 +46,6 @@ public class QuadtreeBuilder {
         return node;
     }
 
-    public static int[][][] reconstructImage(QuadtreeNode node, int[][][] image, int originalWidth, int originalHeight) {
-        // Kode yang ada
-        
-        // Pastikan hanya menyalin ke area valid dari gambar asli
-        if (node.children[0] == null) {
-            for (int i = 0; i < node.height; i++) {
-                for (int j = 0; j < node.width; j++) {
-                    if (node.y + i < originalHeight && node.x + j < originalWidth) {
-                        image[node.y + i][node.x + j] = node.avgColor;
-                    }
-                }
-            }
-        } else {
-            for (QuadtreeNode child : node.children) {
-                if (child != null) {
-                    reconstructImage(child, image, originalWidth, originalHeight);
-                }
-            }
-        }
-        return image;
-    }
 
     public static int calculateTreeDepth(QuadtreeNode node) {
         if (node == null) {
@@ -92,8 +71,7 @@ public class QuadtreeBuilder {
             return;
         }
     
-        // Jika kedalaman saat ini adalah 1, isi blok dengan warna rata-rata
-        if (currentDepth == 1 || node.children == null) {
+        if (currentDepth == 1 || node.children[0] == null) {
             for (int i = 0; i < node.height; i++) {
                 for (int j = 0; j < node.width; j++) {
                     if (node.y + i < originalHeight && node.x + j < originalWidth) {
@@ -101,14 +79,28 @@ public class QuadtreeBuilder {
                     }
                 }
             }
-            return;
+            return; 
         }
+    
+        boolean hasValidChildren = false;
         for (QuadtreeNode child : node.children) {
             if (child != null) {
+                hasValidChildren = true;
                 reconstructImageByDepth(child, image, originalWidth, originalHeight, currentDepth - 1);
             }
         }
+    
+        if (!hasValidChildren) {
+            for (int i = 0; i < node.height; i++) {
+                for (int j = 0; j < node.width; j++) {
+                    if (node.y + i < originalHeight && node.x + j < originalWidth) {
+                        image[node.y + i][node.x + j] = node.avgColor;
+                    }
+                }
+            }
+        }
     }
+
 
     public static int calculateNodeCount(QuadtreeNode node) {
         if (node == null) {

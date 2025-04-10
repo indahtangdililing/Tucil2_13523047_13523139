@@ -21,7 +21,6 @@ public class ImageUtils {
         int height = originalImage.getHeight();
         int[][][] pixelData = new int[height][width][3];
 
-        // Convert BufferedImage to 3D int array
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 int rgb = originalImage.getRGB(x, y);
@@ -74,28 +73,4 @@ public class ImageUtils {
         return power;
     }
     
-    // public static int[][][] padImage(int[][][] image, int targetWidth, int targetHeight) {
-    //     int height = image.length;
-    //     int width = image[0].length;
-    //     int[][][] paddedImage = new int[targetHeight][targetWidth][3];
-        
-    //     // Copy original image data
-    //     for (int y = 0; y < height; y++) {
-    //         for (int x = 0; x < width; x++) {
-    //             paddedImage[y][x] = image[y][x];
-    //         }
-    //     }
-        
-    //     // Fill the padding areas with the nearest pixel value
-    //     for (int y = 0; y < targetHeight; y++) {
-    //         for (int x = 0; x < targetWidth; x++) {
-    //             if (y >= height || x >= width) {
-    //                 int sourceY = Math.min(y, height - 1);
-    //                 int sourceX = Math.min(x, width - 1);
-    //                 paddedImage[y][x] = image[sourceY][sourceX];
-    //             }
-    //         }
-    //     }
-    //     return paddedImage;
-    // }
 }

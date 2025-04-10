@@ -65,9 +65,9 @@ public class Main {
             }
             try {
                 BufferedImage testImage = ImageIO.read(new File(inputImagePath));
-                System.out.println("Gambar berhasil dibaca menggunakan program Java sederhana.");
+                System.out.println("Gambar berhasil dibaca menggunakan program Java.");
             } catch (IOException e) {
-                System.err.println("Gagal membaca gambar menggunakan program Java sederhana: " + e.getMessage());
+                System.err.println("Gagal membaca gambar menggunakan program Java: " + e.getMessage());
             }
             
             int[][][] pixelData = ImageUtils.loadImage(inputImagePath);
