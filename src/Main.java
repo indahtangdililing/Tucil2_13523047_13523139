@@ -23,7 +23,7 @@ public class Main {
         System.out.println("2. Mean Absolute Deviation (MAD)");
         System.out.println("3. Max Pixel Difference");
         System.out.println("4. Entropy");
-        System.out.println("5. Structural Similarity Index (SSIM) [Bonus]");
+        // System.out.println("5. Structural Similarity Index (SSIM) [Bonus]");
         System.out.print("Masukkan nomor metode: ");
         int method = scanner.nextInt();
 
@@ -33,10 +33,10 @@ public class Main {
         System.out.print("Masukkan ukuran blok minimum: ");
         int minSize = scanner.nextInt();
 
-        System.out.print("Masukkan target persentase kompresi (0 untuk menonaktifkan): ");
-        double targetCompression = scanner.nextDouble();
+        // System.out.print("Masukkan target persentase kompresi (0 untuk menonaktifkan): ");
+        // double targetCompression = scanner.nextDouble();
 
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine(); 
 
         System.out.print("Masukkan alamat absolut gambar hasil kompresi (termasuk nama file dan ekstensi): ");
         String outputImagePath = scanner.nextLine();
@@ -89,7 +89,7 @@ public class Main {
                 int compressedSize = (int) compressedFile.length();
                 double compressionPercentage = ImageUtils.calculateCompressionPercentage(originalSize, compressedSize);
 
-                executionTime = (System.nanoTime() - startTime) / 1000000; //milliseconds
+                executionTime = (System.nanoTime() - startTime) / 1000000;
 
                 System.out.println("Waktu eksekusi: " + executionTime + " ms");
                 System.out.println("Ukuran gambar sebelum: " + originalSize + " bytes");
@@ -105,11 +105,9 @@ public class Main {
                     List<BufferedImage> gifImages = new ArrayList<>();
 
                     for (int depth = 1; depth <= treeDepth; depth++) {
-                        // Rekonstruksi gambar berdasarkan kedalaman tertentu
                         int[][][] depthCompressedPixelData = new int[height][width][3];
                         QuadtreeBuilder.reconstructImageByDepth(root, depthCompressedPixelData, width, height, depth);
             
-                        // Konversi data piksel ke BufferedImage
                         BufferedImage frame = QuadtreeBuilder.convertToBufferedImage(depthCompressedPixelData);
                         gifImages.add(frame);
                     }
@@ -117,8 +115,8 @@ public class Main {
                     GifSequenceWriter gifWriter = new GifSequenceWriter(
                         new FileImageOutputStream(new File(gifOutputPath)),
                         BufferedImage.TYPE_INT_RGB,
-                        500, // Delay antara frame dalam milidetik
-                        true // Loop terus-menerus
+                        500, 
+                        true 
                     );
 
                     for (BufferedImage frame : gifImages) {
