@@ -1,6 +1,7 @@
 package quadtree;
 import image.ImageUtils;
 import compressor.Calculate;
+import java.awt.image.BufferedImage;
 
 public class QuadtreeBuilder {
     public static boolean shouldSplit(int[][][] block, double threshold, int minSize, int method, int[][][] originalBlock) {
@@ -24,21 +25,23 @@ public class QuadtreeBuilder {
         }
     }
 
-    public static QuadtreeNode buildQuadtree(int[][][] image, int x, int y, int size, double threshold, int minSize, int method, int[][][] originalImage) {
-        int[][][] block = ImageUtils.extractBlock(image, x, y, size);
-        int[][][] originalBlock = ImageUtils.extractBlock(originalImage, x, y, size); //For SSIM
+    public static QuadtreeNode buildQuadtree(int[][][] image, int x, int y, int width, int height, double threshold, int minSize, int method, int[][][] originalImage) {
+        int[][][] block = ImageUtils.extractBlock(image, x, y, width, height);
+        int[][][] originalBlock = ImageUtils.extractBlock(originalImage, x, y, width, height); //For SSIM
         int[] avgColor = Calculate.calculateAverageColor(block);
 
         if (!shouldSplit(block, threshold, minSize, method, originalBlock)) {
-            return new QuadtreeNode(x, y, size, avgColor);
+            return new QuadtreeNode(x, y, width, height, avgColor);
         }
 
-        QuadtreeNode node = new QuadtreeNode(x, y, size, avgColor);
-        int newSize = size / 2;
-        node.children[0] = buildQuadtree(image, x, y, newSize, threshold, minSize, method, originalImage);
-        node.children[1] = buildQuadtree(image, x + newSize, y, newSize, threshold, minSize, method, originalImage);
-        node.children[2] = buildQuadtree(image, x, y + newSize, newSize, threshold, minSize, method, originalImage);
-        node.children[3] = buildQuadtree(image, x + newSize, y + newSize, newSize, threshold, minSize, method, originalImage);
+        QuadtreeNode node = new QuadtreeNode(x, y, width, height, avgColor);
+        int halfWidth = width / 2;
+        int halfHeight = height / 2;
+
+        node.children[0] = buildQuadtree(image, x, y, halfWidth, halfHeight, threshold, minSize, method, originalImage);
+        node.children[1] = buildQuadtree(image, x + halfWidth, y, width - halfWidth, halfHeight, threshold, minSize, method, originalImage);
+        node.children[2] = buildQuadtree(image, x, y + halfHeight, halfWidth, height - halfHeight, threshold, minSize, method, originalImage);
+        node.children[3] = buildQuadtree(image, x + halfWidth, y + halfHeight, width - halfWidth, height - halfHeight, threshold, minSize, method, originalImage);
 
         return node;
     }
@@ -48,8 +51,8 @@ public class QuadtreeBuilder {
         
         // Pastikan hanya menyalin ke area valid dari gambar asli
         if (node.children[0] == null) {
-            for (int i = 0; i < node.size; i++) {
-                for (int j = 0; j < node.size; j++) {
+            for (int i = 0; i < node.height; i++) {
+                for (int j = 0; j < node.width; j++) {
                     if (node.y + i < originalHeight && node.x + j < originalWidth) {
                         image[node.y + i][node.x + j] = node.avgColor;
                     }
@@ -83,6 +86,29 @@ public class QuadtreeBuilder {
         }
         return maxDepth + 1;
     }
+    
+    public static void reconstructImageByDepth(QuadtreeNode node, int[][][] image, int originalWidth, int originalHeight, int currentDepth) {
+        if (node == null) {
+            return;
+        }
+    
+        // Jika kedalaman saat ini adalah 1, isi blok dengan warna rata-rata
+        if (currentDepth == 1 || node.children == null) {
+            for (int i = 0; i < node.height; i++) {
+                for (int j = 0; j < node.width; j++) {
+                    if (node.y + i < originalHeight && node.x + j < originalWidth) {
+                        image[node.y + i][node.x + j] = node.avgColor;
+                    }
+                }
+            }
+            return;
+        }
+        for (QuadtreeNode child : node.children) {
+            if (child != null) {
+                reconstructImageByDepth(child, image, originalWidth, originalHeight, currentDepth - 1);
+            }
+        }
+    }
 
     public static int calculateNodeCount(QuadtreeNode node) {
         if (node == null) {
@@ -96,5 +122,23 @@ public class QuadtreeBuilder {
             }
         }
         return count;
+    }
+
+    public static BufferedImage convertToBufferedImage(int[][][] pixelData) {
+        int height = pixelData.length;
+        int width = pixelData[0].length;
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+    
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int r = pixelData[y][x][0];
+                int g = pixelData[y][x][1];
+                int b = pixelData[y][x][2];
+                int rgb = (r << 16) | (g << 8) | b;
+                image.setRGB(x, y, rgb);
+            }
+        }
+    
+        return image;
     }
 }

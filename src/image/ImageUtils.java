@@ -33,16 +33,16 @@ public class ImageUtils {
         
         return pixelData;
     }
-    public static int[][][] extractBlock(int[][][] image, int x, int y, int size) {
-        int height = image.length;
-        int width = image[0].length;
+    public static int[][][] extractBlock(int[][][] image, int x, int y, int width, int height) {
+        int imageHeight = image.length;
+        int imageWidth = image[0].length;
 
-        // Pastikan blok tidak melebihi batas gambar
-        int actualSize = Math.min(size, Math.min(width - x, height - y));
+        int actualWidth = Math.min(width, imageWidth - x);
+        int actualHeight = Math.min(height, imageHeight - y);
 
-        int[][][] block = new int[actualSize][actualSize][3];
-        for (int i = 0; i < actualSize; i++) {
-            for (int j = 0; j < actualSize; j++) {
+        int[][][] block = new int[actualHeight][actualWidth][3];
+        for (int i = 0; i < actualHeight; i++) {
+            for (int j = 0; j < actualWidth; j++) {
                 block[i][j] = image[y + i][x + j];
             }
         }
@@ -74,28 +74,28 @@ public class ImageUtils {
         return power;
     }
     
-    public static int[][][] padImage(int[][][] image, int targetWidth, int targetHeight) {
-        int height = image.length;
-        int width = image[0].length;
-        int[][][] paddedImage = new int[targetHeight][targetWidth][3];
+    // public static int[][][] padImage(int[][][] image, int targetWidth, int targetHeight) {
+    //     int height = image.length;
+    //     int width = image[0].length;
+    //     int[][][] paddedImage = new int[targetHeight][targetWidth][3];
         
-        // Copy original image data
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                paddedImage[y][x] = image[y][x];
-            }
-        }
+    //     // Copy original image data
+    //     for (int y = 0; y < height; y++) {
+    //         for (int x = 0; x < width; x++) {
+    //             paddedImage[y][x] = image[y][x];
+    //         }
+    //     }
         
-        // Fill the padding areas with the nearest pixel value
-        for (int y = 0; y < targetHeight; y++) {
-            for (int x = 0; x < targetWidth; x++) {
-                if (y >= height || x >= width) {
-                    int sourceY = Math.min(y, height - 1);
-                    int sourceX = Math.min(x, width - 1);
-                    paddedImage[y][x] = image[sourceY][sourceX];
-                }
-            }
-        }
-        return paddedImage;
-    }
+    //     // Fill the padding areas with the nearest pixel value
+    //     for (int y = 0; y < targetHeight; y++) {
+    //         for (int x = 0; x < targetWidth; x++) {
+    //             if (y >= height || x >= width) {
+    //                 int sourceY = Math.min(y, height - 1);
+    //                 int sourceX = Math.min(x, width - 1);
+    //                 paddedImage[y][x] = image[sourceY][sourceX];
+    //             }
+    //         }
+    //     }
+    //     return paddedImage;
+    // }
 }

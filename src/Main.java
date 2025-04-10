@@ -2,9 +2,12 @@ import java.util.*;
 import java.io.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+
 import image.ImageUtils;
 import quadtree.QuadtreeBuilder;
 import quadtree.QuadtreeNode;
+import image.GifSequenceWriter;
 
 
 
@@ -74,13 +77,10 @@ public class Main {
             long startTime = System.nanoTime();
             long executionTime;
 
-            // --- Tambahkan pengecekan ukuran array piksel ---
             if (pixelData.length > 0 && pixelData[0].length > 0) {
-                int padSize = ImageUtils.getPowerOfTwoSize(Math.max(width, height));
-                int[][][] paddedImage = ImageUtils.padImage(pixelData, padSize, padSize);
-                QuadtreeNode root = QuadtreeBuilder.buildQuadtree(paddedImage, 0, 0, padSize, threshold, minSize, method, paddedImage);
+                QuadtreeNode root = QuadtreeBuilder.buildQuadtree(pixelData, 0, 0, width, height, threshold, minSize, method, pixelData);
                 int[][][] compressedPixelData = new int[height][width][3];
-                compressedPixelData = QuadtreeBuilder.reconstructImage(root, compressedPixelData, width, height);
+                QuadtreeBuilder.reconstructImageByDepth(root, compressedPixelData, width, height, QuadtreeBuilder.calculateTreeDepth(root));
 
                 ImageUtils.saveImage(compressedPixelData, outputImagePath, "jpg"); 
                 File originalFile = new File(inputImagePath);
@@ -96,16 +96,38 @@ public class Main {
                 System.out.println("Ukuran gambar setelah: " + compressedSize + " bytes");
                 System.out.println("Persentase kompresi: " + String.format("%.2f", compressionPercentage) + " %");
 
-                // Calculate tree depth and node count (Simplified - can be further optimized)
                 int treeDepth = QuadtreeBuilder.calculateTreeDepth(root);
                 int nodeCount = QuadtreeBuilder.calculateNodeCount(root);
                 System.out.println("Kedalaman pohon: " + treeDepth);
                 System.out.println("Banyak simpul pada pohon: " + nodeCount);
 
-                // GIF generation (Basic - requires external library like AnimatedGifEncoder)
                 if (!gifOutputPath.isEmpty()) {
-                    System.out.println("Pembuatan GIF belum diimplementasikan. Membutuhkan library eksternal.");
-                    // Implement GIF generation here (BONUS)
+                    List<BufferedImage> gifImages = new ArrayList<>();
+
+                    for (int depth = 1; depth <= treeDepth; depth++) {
+                        // Rekonstruksi gambar berdasarkan kedalaman tertentu
+                        int[][][] depthCompressedPixelData = new int[height][width][3];
+                        QuadtreeBuilder.reconstructImageByDepth(root, depthCompressedPixelData, width, height, depth);
+            
+                        // Konversi data piksel ke BufferedImage
+                        BufferedImage frame = QuadtreeBuilder.convertToBufferedImage(depthCompressedPixelData);
+                        gifImages.add(frame);
+                    }
+
+                    GifSequenceWriter gifWriter = new GifSequenceWriter(
+                        new FileImageOutputStream(new File(gifOutputPath)),
+                        BufferedImage.TYPE_INT_RGB,
+                        500, // Delay antara frame dalam milidetik
+                        true // Loop terus-menerus
+                    );
+
+                    for (BufferedImage frame : gifImages) {
+                        gifWriter.writeToSequence(frame);
+                    }
+                    gifWriter.close();
+                    System.out.println("GIF berhasil dibuat: " + gifOutputPath);
+                } else {
+                    System.out.println("GIF tidak dibuat.");
                 }
             } else {
                 System.err.println("Gambar kosong atau tidak valid.");
